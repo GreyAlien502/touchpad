@@ -12,8 +12,7 @@ multiprocessing.Process(target=lambda window=...:(
 	window := tkinter.Tk(),
 	window.wait_visibility(window),
 	window.wm_attributes('-alpha', 0.3),
-	window.bind('<Configure>',lambda event,
-		upto = lambda maximum,value: max(0,min(value,maximum)):
+	window.bind('<Configure>',lambda event:
 		bounds.__setitem__(slice(None,None),[
 			max(0,min(window.winfo_screenwidth(),event.x)),
 			max(0,min(window.winfo_screenheight(),event.y)),
@@ -32,7 +31,7 @@ multiprocessing.Process(target=lambda window=...:(
 
 def getJS():
 	print('ok')
-	return [subprocess.check_output('npx babel touchpad.js',shell=True).decode(),print("oKK")][0]
+	return [subprocess.check_output('npx babel --presets es2015 touchpad.js',shell=True).decode(),print("oKK")][0]
 
 def handle_http(request):
 	path = urllib.parse.urlparse(request.path).path
@@ -119,7 +118,7 @@ def handle_http(request):
 
 multiprocessing.Process(target=lambda:
 	http.server.ThreadingHTTPServer(
-		('192.168.1.3',int(sys.argv[1])),
+		('0.0.0.0',int(sys.argv[1])),
 		je3.server.handler(handle_http,connection_timeout=1)
 	).serve_forever()
 ).start()
@@ -146,6 +145,6 @@ def handle_touch(client,server,message):
 		touchmove=lambda:None,
 	)[event.type]()
 
-server = websocket_server.WebsocketServer(9001, host='192.168.1.3')
+server = websocket_server.WebsocketServer(port=9001, host='0.0.0.0')
 server.set_fn_message_received(handle_touch)
 server.run_forever()
